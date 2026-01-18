@@ -8,6 +8,7 @@
 # 1. OS Detection & Windows Fixes
 export MSYS_NO_PATHCONV=1
 export OSTYPE_CURRENT="$(uname -s | tr '[:upper:]' '[:lower:]')"
+export USER=${USER:-$USERNAME}
 
 # 2. Path Resolution
 # Points to ~/docker regardless of where the script is called from
