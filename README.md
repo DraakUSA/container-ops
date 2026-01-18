@@ -1,24 +1,39 @@
 # Docker Stack Manager (DSM)
 
-A modular, Git-style CLI tool for managing multi-group Docker Compose deployments on Windows (Git Bash) and Linux.
+A professional, modular CLI toolset for managing Docker Compose stacks. Designed for isolation, stability, and surgical control over service groups.
 
-## 📂 Project Structure
+## 📂 Architecture
+- **Isolated Projects**: Each stack is assigned a unique project name (`-p`) based on its directory path, preventing "orphan container" warnings.
+- **Library-Driven**: Core logic resides in `env.sh` (Read-only), ensuring consistency across all management scripts.
+- **Hierarchical**: Supports single stacks (e.g., `iot/home-assistant`) or entire groups (e.g., `iot`).
 
+## 🛠 Usage
+The tool is invoked via the `d` alias. All lifecycle commands support an optional `[target]` parameter.
+
+| Command | [Target] Capability | Description |
+| :--- | :--- | :--- |
+| `d up` | `[group]` or `[stack]` | Starts target(s) with `--no-build`. |
+| `d down` | `[group]` or `[stack]` | Stops and removes target(s). |
+| `d restart` | `[group]` or `[stack]` | Bounces the container processes. |
+| `d status` | `[group]` | Shows a dashboard (filtered if group is provided). |
+| `d check` | `--ignore-latest` | Validates YAML. Warns on `:latest` tags (except in `security/`). |
+| `d discover` | N/A | Rebuilds the `stacks.txt` index. |
+| `d edit` | `[stack]` | Opens the specific `docker-compose.yml` in `vi`. |
+| `d logs` | `[stack]` | Tails logs (supports flags like `-f`). |
+
+## 📁 Directory Structure
 ```text
-docker/
-├── env.sh              # Shared environment & config (READ-ONLY)
-├── manage              # Main entry point (the 'd' command)
-├── stacks.txt          # Auto-generated index of stacks
-├── scripts/            # Modular worker scripts
-│   ├── manage-up       # Starts containers
-│   ├── manage-down     # Stops containers
-│   ├── manage-status   # Dashboard & health check
-│   └── ...             # (discover, check, edit, logs)
-└── containers/         # Your Docker configurations
-    ├── networking/     # Logical groupings
-    │   └── fing/       # Individual stack folder
-    └── apps/
-        └── gimp/
+~/docker/
+├── env.sh              # Central functions (chmod 644)
+├── manage              # Main router (chmod +x)
+├── stacks.txt          # Auto-generated index
+├── scripts/            # Parameter-aware workers
+└── containers/         
+    ├── iot/            # Group: iot
+    │   └── home-assistant/
+    ├── networking/     # Group: networking
+    │   └── fing/
+    └── security/       # Group: security (Policy: latest-tag allowed)
 ```
 
 ## 🚀 Setup
@@ -36,21 +51,6 @@ chmod 644 env.sh stacks.txt
 alias d='~/docker/manage'
 ```
 
-## 🛠 Usage
-
-The tool is invoked using the d alias followed by a command:
-
-| Command | Description |
-| :--- | :--- |
-| `d discover` | Scans containers/ and updates the stacks.txt index. |
-| `d status` | Shows a professional dashboard of running containers and resource usage. |
-| `d check [--ignore-latest]` | Validates YAML syntax for all stacks without starting them. |
-| `d up` | Starts all stacks listed in stacks.txt. |
-| `d down` | Stops and removes all stacks listed in stacks.txt. |
-| `d edit [name]` | Opens the docker-compose.yml of a specific stack in vi. |
-| `d logs [name] [-f]` | Tails the logs for a specific stack (e.g., d logs fing -f). |
-| `d prune` | Deep-cleans unused Docker images, containers, and networks. |
-
 ## 📝 Adding New Containers
 
 1. Create a subfolder in `containers/` (e.g., `containers/media/plex`).
@@ -63,12 +63,16 @@ The tool is invoked using the d alias followed by a command:
 
 Global variables like OS detection (`MSYS_NO_PATHCONV`) and the `status_title` UI routine are managed in `env.sh`. This file is *sourced*, not executed, to maintain a single source of truth across all modular scripts.
 
+## 🔐 Policies & Best Practices
 
----
+1. The `:latest` Rule: Do not use `:latest` in production (e.g., `iot` or `infra`). Always pin versions for stability.
 
-### How to use this file
+2. Security Exception: Containers in the `security/` group are exempt from `:latest` warnings to ensure signature updates.
 
-1.  Run `vi ~/docker/README.md`.
-2.  Paste the content above.
-3.  Now, whenever you are in your terminal, you can simply type `cat ~/docker/README.md` to see your manual.
+3. Adding Services:
 
+* Create a folder: `containers/[group]/[service]`.
+
+* Add `docker-compose.yml`.
+
+* Run `d discover` to register the new stack.
