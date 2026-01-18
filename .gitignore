@@ -5,6 +5,12 @@
 *.env.bak
 *.env.old
 
+# --- Directories & Files
+# Ignore any containers (system dependent)
+containers/
+# Ignore auto-generated files
+stacks.txt
+
 # --- System Files ---
 # Ignore OS-specific metadata
 .DS_Store
