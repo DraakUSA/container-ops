@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source "$(dirname "$0")/../env.sh"
+load_stacks
+
+for stack in "${STACKS[@]}"; do
+    if [ -d "$CONTAINERS_DIR/$stack" ]; then
+        status_title "RESTARTING: $stack"
+        project_name=$(echo "$stack" | tr '/' '-')
+        (cd "$CONTAINERS_DIR/$stack" && docker compose -p "$project_name" restart)
+    else
+        echo "Directory $stack not found. Skipping..."
+    fi
+done

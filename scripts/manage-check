@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+source "$(dirname "$0")/../env.sh"
+
+# 1. Check for the ignore flag
+IGNORE_LATEST=false
+if [[ "$*" == *"--ignore-latest"* ]]; then
+    IGNORE_LATEST=true
+fi
+
+load_stacks
+
+echo "Validating all Docker Compose configurations..."
+errors=0
+
+for stack in "${STACKS[@]}"; do
+    compose_file="$CONTAINERS_DIR/$stack/docker-compose.yml"
+
+    if [ -f "$compose_file" ]; then
+        # A. Run the standard YAML syntax check
+        if ! (cd "$(dirname "$compose_file")" && docker compose config -q); then
+            echo "[!] ERROR in stack: $stack (Syntax Error)"
+            ((errors++))
+            continue
+        fi
+
+        # B. Logic for :latest check
+        if [ "$IGNORE_LATEST" = false ]; then
+            # If stack is NOT in the security folder, check for :latest
+            if [[ "$stack" != security/* ]]; then
+                if grep -q ":latest" "$compose_file"; then
+                    echo "[!] WARNING: '$stack' uses :latest. (Pin versions for stability)"
+                fi
+            fi
+        fi
+    fi
+done
+
+[[ $errors -eq 0 ]] && echo "Validation complete."

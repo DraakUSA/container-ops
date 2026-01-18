@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source "$(dirname "$0")/../env.sh"
+
+target=$1
+
+if [ -z "$target" ]; then
+    $MY_EDITOR "$STACKS_FILE"
+    exit 0
+fi
+
+# Fuzzy find the stack directory
+found_path=$(find "$CONTAINERS_DIR" -type d -name "$target" -print -quit)
+
+if [ -n "$found_path" ] && [ -f "$found_path/docker-compose.yml" ]; then
+    echo "Opening $target..."
+    $MY_EDITOR "$found_path/docker-compose.yml"
+else
+    echo "Error: Could not find docker-compose.yml for '$target'"
+    exit 1
+fi

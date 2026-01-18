@@ -1,0 +1,22 @@
+# --- Secrets & Environment ---
+# Ignore the local secrets file
+.env
+# Ignore any backup environment files
+*.env.bak
+*.env.old
+
+# --- System Files ---
+# Ignore OS-specific metadata
+.DS_Store
+Thumbs.db
+
+# --- Docker & Logs ---
+# Ignore container logs that might be stored in your directory
+logs/
+*.log
+
+# --- Project Specific ---
+# If your 'manage' script generates temporary state files
+*.tmp
+# Keep stacks.txt but ignore specific local overrides if needed
+# local_settings.txt

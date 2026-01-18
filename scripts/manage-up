@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source "$(dirname "$0")/../env.sh"
+load_stacks
+
+for stack in "${STACKS[@]}"; do
+    status_title "STARTING: $stack"
+    if [ -d "$CONTAINERS_DIR/$stack" ]; then
+        project_name=$(echo "$stack" | tr '/' '-')
+        (cd "$CONTAINERS_DIR/$stack" && docker compose -p "$project_name" up -d --no-build)
+    else
+        echo "Directory $stack not found. Skipping..."
+    fi
+done

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source "$(dirname "$0")/../env.sh"
+
+target=$1
+shift # Pass everything else (like -f or --tail) to docker compose logs
+
+if [ -z "$target" ]; then
+    echo "Usage: d logs [stack_name] [options]"
+    exit 1
+fi
+
+found_path=$(find "$CONTAINERS_DIR" -type d -name "$target" -print -quit)
+
+if [ -n "$found_path" ]; then
+    (cd "$found_path" && docker compose logs "$@")
+else
+    echo "Error: Stack '$target' not found."
+fi
