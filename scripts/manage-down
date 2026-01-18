@@ -3,7 +3,9 @@
 source "$(dirname "$0")/../env.sh"
 load_stacks
 
-for stack in "${STACKS[@]}"; do
+get_target_stacks "$1"
+
+for stack in "${TARGET_STACKS[@]}"; do
     if [ -d "$CONTAINERS_DIR/$stack" ]; then
         status_title "STOPPING: $stack"
         project_name=$(echo "$stack" | tr '/' '-')

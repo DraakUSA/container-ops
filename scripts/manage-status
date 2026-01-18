@@ -6,15 +6,25 @@ source "$(dirname "$0")/../env.sh"
 # Use the function we added to env.sh
 status_title "DOCKER SYSTEM DASHBOARD"
 
-echo -e "\n[ 1. Container States ]"
-# We add .Status (which includes 'Up' and uptime) and .RunningFor
-# We also include 'table' to get the headers automatically
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+if [ -n "$1" ]; then
+    # Filter by project name (e.g., d status iot)
+    P_FILTER=$(get_project_name "$1")
+    echo "Filtering by: $P_FILTER"
+    docker ps --filter "name=$P_FILTER" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+else
+    echo "[ 1. Container States ]"
+    docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-echo -e "\n[ 2. Resource Usage (Snapshot) ]"
-# --no-stream ensures it doesn't hang in your terminal
-# We format it to focus on the essentials for your laptop
-docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+    echo -e "\n[ 2. Resource Usage ]"
+    docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}"
+
+    echo -e "\n[ 3. Storage Health ]"
+    # df -h shows human-readable disk space for the docker root
+    # docker system df shows space used specifically by images and volumes
+    docker system df | grep -E "(Images|Containers|Local Volumes)"
+    echo -n "Disk Usage (/): "
+    df -h / | awk 'NR==2 {print $3 " / " $2 " (" $5 " used)"}'
+fi
 
 echo ""
 status_title "END OF REPORT"

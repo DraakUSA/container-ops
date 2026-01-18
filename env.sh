@@ -60,6 +60,31 @@ load_stacks() {
     fi
 }
 
+get_target_stacks() {
+    local input_param="$1"
+
+    # Reset/Initialize the global array
+    TARGET_STACKS=()
+
+    if [ -n "$input_param" ]; then
+        # If it's a group (directory), find all stacks in that group from stacks.txt
+        if [ -d "$CONTAINERS_DIR/$input_param" ] && [ ! -f "$CONTAINERS_DIR/$input_param/docker-compose.yml" ]; then
+            mapfile -t TARGET_STACKS < <(grep "^$input_param/" "$STACKS_FILE")
+        else
+            # Otherwise, treat it as a single specific stack path
+            TARGET_STACKS=("$input_param")
+        fi
+    else
+        # No param? Load everything
+        load_stacks
+        TARGET_STACKS=("${STACKS[@]}")
+    fi
+}
+
+get_project_name() {
+    echo "$1" | tr '/' '-'
+}
+
 status_title() {
     local title=" $1 "
     local width=72
