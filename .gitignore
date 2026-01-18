@@ -10,6 +10,8 @@
 containers/
 # Ignore auto-generated files
 stacks.txt
+# other files
+backup.sh
 
 # --- System Files ---
 # Ignore OS-specific metadata
