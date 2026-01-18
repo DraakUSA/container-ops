@@ -72,6 +72,3 @@ Global variables like OS detection (`MSYS_NO_PATHCONV`) and the `status_title` U
 2.  Paste the content above.
 3.  Now, whenever you are in your terminal, you can simply type `cat ~/docker/README.md` to see your manual.
 
-
-
-**Would you like me to help you create a `.gitignore` file for this folder as well, in case you decide to push this entire setup to a private GitHub or Gitea repository?**
