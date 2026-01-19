@@ -13,6 +13,8 @@ else
 fi
 
 # 2. Command Dispatcher Logic
+cd $BASE_DIR
+
 COMMAND=$1
 shift # Move to the next argument
 
